@@ -8,7 +8,27 @@ from sklearn.pipeline import Pipeline
 from keras.preprocessing import image
 from PIL import Image
 import streamlit as st
+st.set_page_config(layout="wide")
 
+def set_bg_hack_url():
+    '''
+    A function to unpack an image from url and set as bg.
+    Returns
+    -------
+    The background.
+    '''
+        
+    st.markdown(
+         f"""
+         <style>
+         .stApp {{
+             background: url("https://wallpaperbat.com/img/161069-neural-network-wallpaper.gif");
+             background-size: cover
+         }}
+         </style>
+         """,
+         unsafe_allow_html=True
+     )
 #Function to load uploaded image
 def load_image(image_file):
 	img = Image.open(image_file)
@@ -50,26 +70,36 @@ def output(full_pipeline,img):
 
 def main():
    # giving a title
-   st.set_page_config(page_title='Rice Deficiency', page_icon='favicon.png')
-   st.title('Rice Deficiency Classifier')
-   st.subheader('Upload Rice plant image for prediction')
-   image_file = st.file_uploader("Upload Images", type=["png","jpg","jpeg"])
-   # code for Prediction
-   prediction = ''
+    set_bg_hack_url()
+    col1, col2 = st.columns(2)
 
-   # creating a button for Prediction
+    with col1:
+        st.title('H.A.R.N.')
+        st.subheader('Image Classification Using CNN for identifying Plant Nutrient Deficiencies')
+        image_file = st.file_uploader("Upload Images", type=["png","jpg","jpeg"])
+        # code for Prediction
+        prediction = ''
 
-   if st.button('Predict'):
-     if image_file is not None:
-         # To See details
-         with st.spinner('Loading Image and Model...'):
-            full_pipeline = check()
-         file_details = {"filename":image_file.name, "filetype":image_file.type,"filesize":image_file.size}
-         st.write(file_details)
-         img = load_image(image_file)
-         st.image(img,width=224)
-         with st.spinner('Predicting...'):
-            prediction = output(full_pipeline,img)
-         st.success(prediction)
+        # creating a button for Prediction
+
+        if st.button('Predict'):
+            if image_file is not None:
+                # To See details
+                with st.spinner('Loading Image and Model...'):
+                    full_pipeline = check()
+                file_details = {"filename":image_file.name, "filetype":image_file.type,"filesize":image_file.size}
+                st.write(file_details)
+                img = load_image(image_file)
+                w=img.size[0]
+                h=img.size[1]
+                if w>h:
+                    w=600
+                    st.image(img,width=w)
+                else:
+                    w=w*(600.0/h)
+                    st.image(img,width=int(w))
+                with st.spinner('Predicting...'):
+                    prediction = output(full_pipeline,img)
+                st.success(prediction)
 if __name__ == '__main__':
     main()
